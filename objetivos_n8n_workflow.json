@@ -1,0 +1,177 @@
+{
+  "name": "Objetivos (Sheets) -> Supabase",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "name": "Cada dia 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        300
+      ],
+      "id": "a1b2c3d4-0001-4001-8001-000000000001"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "delete",
+        "tableId": "objetivos",
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "gte",
+              "keyValue": "0"
+            }
+          ]
+        }
+      },
+      "name": "Vaciar tabla objetivos",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        480,
+        300
+      ],
+      "id": "a1b2c3d4-0002-4002-8002-000000000002",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "authentication": "oAuth2",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1vdjqvFH1zHujLuToai9pngtrBKwTeioqQvSDtKcABxU"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "0",
+          "cachedResultName": "Hoja 1"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "UNFORMATTED_VALUE",
+              "date": "FORMATTED_STRING"
+            }
+          },
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically",
+              "readRowsUntil": "firstEmptyRow"
+            }
+          }
+        },
+        "returnAllMatches": "returnAllMatches"
+      },
+      "name": "Leer hoja objetivos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        300
+      ],
+      "id": "a1b2c3d4-0003-4003-8003-000000000003",
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const toNum=(v)=>{ if(v===null||v===undefined||v==='') return null; if(typeof v==='number') return v; let s=String(v).trim().replace(/\\s/g,'').replace(/\\$/g,'').replace(/%/g,''); if(s.indexOf(',')>-1) s=s.replace(/\\./g,'').replace(',','.'); const n=parseFloat(s); return isNaN(n)?null:n; };\nfunction fechaMMYYYY(v){\n  if(v===null||v===undefined||v==='') return null;\n  if(typeof v==='number'){ const d=new Date(Date.UTC(1899,11,30)+Math.round(v)*86400000); return String(d.getUTCMonth()+1).padStart(2,'0')+'-'+d.getUTCFullYear(); }\n  let s=String(v).trim();\n  let m=s.match(/^(\\d{1,2})[-\\/](\\d{4})$/); if(m) return m[1].padStart(2,'0')+'-'+m[2];\n  m=s.match(/^(\\d{4})[-\\/](\\d{1,2})$/); if(m) return m[2].padStart(2,'0')+'-'+m[1];\n  const d=new Date(s); if(!isNaN(d)) return String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();\n  return s;\n}\nconst out=[];\nfor(const item of $input.all()){\n  const r=item.json;\n  const cli=(r.cliente!==undefined?r.cliente:r.Cliente);\n  const fch=(r.fecha!==undefined?r.fecha:r.Fecha);\n  if(cli===undefined||cli===null||String(cli).trim()==='') continue;\n  out.push({json:{\n    cliente:String(cli).trim().toLowerCase(),\n    fecha:fechaMMYYYY(fch),\n    inversion_meta:toNum(r.inversion_meta),\n    inversion_google:toNum(r.inversion_google),\n    facturacion:toNum(r.facturacion),\n    ordenes:(function(){var n=toNum(r.ordenes);return n===null?null:Math.round(n);})()\n  }});\n}\nreturn out;"
+      },
+      "name": "Normalizar objetivos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        300
+      ],
+      "id": "a1b2c3d4-0004-4004-8004-000000000004"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "create",
+        "tableId": "objetivos",
+        "dataToSend": "autoMapInputData",
+        "inputsToIgnore": ""
+      },
+      "name": "Insertar en Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        300
+      ],
+      "id": "a1b2c3d4-0005-4005-8005-000000000005"
+    }
+  ],
+  "connections": {
+    "Cada dia 08:00": {
+      "main": [
+        [
+          {
+            "node": "Vaciar tabla objetivos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vaciar tabla objetivos": {
+      "main": [
+        [
+          {
+            "node": "Leer hoja objetivos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer hoja objetivos": {
+      "main": [
+        [
+          {
+            "node": "Normalizar objetivos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar objetivos": {
+      "main": [
+        [
+          {
+            "node": "Insertar en Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}
