@@ -226,6 +226,23 @@ table.ke-t tfoot td:first-child{text-align:left;}
     <div class="ke-kc o"><div class="ke-kl">CPC</div><div id="kv-gcpc" class="ke-kv o">—</div><div id="ks-gcpc" class="ke-ks"></div></div>
   </div>
 
+  <style>
+  .ke-goals{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;margin:4px 0 8px;}
+  .ke-goal-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
+  .ke-goal-name{font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--ke-text);}
+  .ke-goal-pct{font-family:'Bitroad',sans-serif;font-size:17px;color:var(--ke-orange);line-height:1;}
+  .ke-goal-pct.g{color:var(--ke-green);}.ke-goal-pct.o{color:var(--ke-warn);}.ke-goal-pct.b{color:var(--ke-blue);}
+  .ke-goal-bar{position:relative;height:10px;background:rgba(255,255,255,.06);border-radius:6px;}
+  .ke-goal-fill{position:absolute;top:0;left:0;bottom:0;background:var(--ke-orange);border-radius:6px;max-width:100%;}
+  .ke-goal-fill.g{background:var(--ke-green);}.ke-goal-fill.o{background:var(--ke-warn);}.ke-goal-fill.b{background:var(--ke-blue);}
+  .ke-goal-ideal{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ke-text);opacity:.6;border-radius:2px;}
+  .ke-goal-sub{font-size:10px;color:var(--ke-muted);margin-top:7px;letter-spacing:.02em;}
+  .ke-goal-mes{font-size:9px;color:var(--ke-muted);letter-spacing:.1em;text-transform:uppercase;margin-left:auto;}
+  @media(max-width:560px){.ke-goals{grid-template-columns:1fr;}}
+  </style>
+  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Objetivos del mes · avance vs meta</span><span id="goal-mes" class="ke-goal-mes"></span></div>
+  <div id="goals" class="ke-goals"><div class="ke-pg-sub">Cargando objetivos…</div></div>
+
   <div class="ke-block"><div class="ke-block-top"></div>
     <div class="ke-bh"><span class="ke-bt">Facturación diaria Tiendanube</span></div>
     <div class="ke-bbody"><div class="ke-chartbox"><canvas id="cFactDia"></canvas></div></div>
@@ -490,9 +507,55 @@ async function loadInsights(){
     }).join('');
   }catch(e){console.error(e); el.innerHTML='<div class="ke-pg-sub">Error cargando conclusiones: '+e.message+'</div>';}
 }
+async function loadObjetivos(){
+  const box=document.getElementById('goals'); if(!box) return;
+  try{
+    const now=new Date();
+    const mStart=new Date(now.getFullYear(),now.getMonth(),1);
+    const yest=addDays(now,-1); const to=(yest<mStart)?mStart:yest;
+    const mm=String(now.getMonth()+1).padStart(2,'0')+'-'+now.getFullYear();
+    const diasMes=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+    const diaHoy=Math.min(now.getDate(),diasMes);
+    const idealPct=diaHoy/diasMes*100;
+    const S=iso(mStart),E=iso(to);
+    const headers={apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY};
+    const objUrl=SUPABASE_URL+"/rest/v1/objetivos?select=*&cliente=eq.oxford&fecha=eq."+encodeURIComponent(mm);
+    const [meta,google,orders,objR]=await Promise.all([
+      sb('oxford_meta_ads','date,amount_spent',S,E),
+      sb('oxford_google_ads','date,cost',S,E),
+      sb('oxford_tiendanube_orders','date,order_payment_status,order_total_paid',S,E),
+      fetch(objUrl,{headers}).then(r=>r.ok?r.json():[])
+    ]);
+    const obj=(objR&&objR[0])||null;
+    if(!obj){box.innerHTML='<div class="ke-pg-sub">Sin objetivos cargados para '+mm+'. Completá la hoja de objetivos.</div>'; setTxt('goal-mes',''); return;}
+    const realMeta=sum(meta,x=>x.amount_spent), realGoogle=sum(google,x=>x.cost);
+    const paid=orders.filter(o=>(o.order_payment_status||'').toLowerCase()==='paid');
+    const realFact=sum(paid,o=>o.order_total_paid), realOrd=paid.length;
+    setTxt('goal-mes','Mes en curso · día '+diaHoy+'/'+diasMes+' · ritmo ideal '+idealPct.toFixed(0)+'%');
+    const bar=(name,real,objv,kind)=>{
+      const o=+objv||0, pc=o?real/o*100:0;
+      const revLike=(kind==='rev'||kind==='ord');
+      const cls=revLike?(pc>=idealPct?'g':'o'):'b';
+      const fillW=Math.min(100,Math.max(0,pc)), idealL=Math.min(100,idealPct);
+      const realTxt=(kind==='ord')?fmtInt(real):moneyKpi(real);
+      const objTxt=(kind==='ord')?fmtInt(o):moneyKpi(o);
+      return '<div class="ke-goal">'+
+        '<div class="ke-goal-top"><span class="ke-goal-name">'+name+'</span><span class="ke-goal-pct '+cls+'">'+pc.toFixed(0)+'%</span></div>'+
+        '<div class="ke-goal-bar"><div class="ke-goal-fill '+cls+'" style="width:'+fillW+'%"></div><div class="ke-goal-ideal" style="left:'+idealL+'%"></div></div>'+
+        '<div class="ke-goal-sub">'+realTxt+' de '+objTxt+' · ideal hoy '+idealPct.toFixed(0)+'%</div>'+
+      '</div>';
+    };
+    box.innerHTML=
+      bar('Inversión Meta',realMeta,obj.inversion_meta,'inv')+
+      bar('Inversión Google',realGoogle,obj.inversion_google,'inv')+
+      bar('Facturación',realFact,obj.facturacion,'rev')+
+      bar('Órdenes',realOrd,obj.ordenes,'ord');
+  }catch(e){console.error(e); box.innerHTML='<div class="ke-pg-sub">Error cargando objetivos: '+e.message+'</div>';}
+}
 labelRange();
 loadData();
 loadInsights();
+loadObjetivos();
 let _mob=isMobile();
 window.addEventListener('resize',()=>{const m=isMobile();if(m!==_mob){_mob=m;if(_last)render(_last.c,_last.p,_last.D);}});
 
