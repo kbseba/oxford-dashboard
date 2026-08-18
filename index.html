@@ -141,8 +141,9 @@ table.ke-t tfoot td:first-child{text-align:left;}
 .adcard-h{display:flex;align-items:center;gap:10px;margin:0 0 10px;flex-wrap:wrap;}
 .adcard-t{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ke-text);display:flex;align-items:center;flex-wrap:wrap;gap:4px;}
 .adcard-link{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ke-orange);text-decoration:none;border:1px solid rgba(255,112,10,.3);border-radius:999px;padding:3px 10px;white-space:nowrap;}
-.ke-sec-link{margin-left:12px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ke-orange);text-decoration:none;border:1px solid rgba(255,112,10,.3);border-radius:999px;padding:3px 10px;white-space:nowrap;}
-.ke-sec-link:hover{background:rgba(255,112,10,.12);}
+.ke-more-row{display:flex;justify-content:center;margin:16px 0 4px;}
+.ke-btn-orange{display:inline-flex;align-items:center;gap:7px;background:var(--ke-orange);color:#191919;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;border-radius:999px;padding:10px 24px;transition:filter .15s;}
+.ke-btn-orange:hover{filter:brightness(1.1);}
 .adcard-link:hover{background:rgba(255,112,10,.12);}
 .adcard .copy{font-size:12px;line-height:1.5;color:rgba(230,230,230,.78);margin:0 0 12px;white-space:pre-wrap;}
 .adgrid-m{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
@@ -193,6 +194,7 @@ table.ke-t tfoot td:first-child{text-align:left;}
 .ig-sel{background:var(--ke-bg);border:1px solid var(--ke-border);color:var(--ke-text);font-family:'Bitroad',sans-serif;font-size:10px;letter-spacing:.04em;border-radius:8px;padding:5px 8px;cursor:pointer;color-scheme:dark;}
 /* CONCLUSIONES & ACCIONABLES */
 .ke-ins-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+.ke-ins-wrap,.ke-ins-wrap *{font-family:'General Sans',sans-serif;}
 .ke-ins-card{background:var(--ke-card);border:1px solid var(--ke-border);border-radius:12px;padding:16px 18px;}
 .ke-ins-card.cur{border-color:rgba(255,112,10,.3);}
 .ke-ins-wk{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ke-muted);margin-bottom:6px;}
@@ -330,8 +332,9 @@ table.ke-t tfoot td:first-child{text-align:left;}
   </div>
 
   
-  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Top creativos · Meta Ads</span><span class="ke-goal-mes">Ranking por valor de compras · hook prom. <b id="stat-hook">—</b></span><a class="ke-sec-link" href="https://datastudio.google.com/reporting/20861fcc-c529-4b32-91dd-12563f7dcf99" target="_blank" rel="noopener" title="Todos los anuncios en Looker Studio">Ver más ↗</a></div>
+  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Top creativos · Meta Ads</span><span class="ke-goal-mes">Ranking por valor de compras · hook prom. <b id="stat-hook">—</b></span></div>
   <div id="adcards"></div>
+  <div class="ke-more-row"><a class="ke-btn-orange" href="https://datastudio.google.com/reporting/20861fcc-c529-4b32-91dd-12563f7dcf99" target="_blank" rel="noopener" title="Todos los anuncios en Looker Studio">Ver más ↗</a></div>
 
   <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Conclusiones &amp; accionables · Paid Media</span><span class="ke-goal-mes">Sprint Review · <b>Notion</b></span></div>
   <div id="insights-pm" class="ke-ins-wrap"><div class="ke-pg-sub">Cargando…</div></div>
