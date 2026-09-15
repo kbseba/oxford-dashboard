@@ -75,6 +75,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .ke-pg-stat{text-align:right;}
 .ke-pg-stat-val{font-size:32px;color:var(--ke-orange);line-height:1;}
 .ke-pg-stat-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ke-muted);margin-top:4px;}
+.ke-pg-stat .ke-ks{justify-content:flex-end;margin-top:5px;}
 
 /* KPI CARDS */
 .ke-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
@@ -238,6 +239,8 @@ table.ke-t tfoot td:first-child{text-align:left;}
   <div class="tb-pills">
     <button class="tb-pill active" onclick="preset('mtd',this)">Mes en curso</button>
     <button class="tb-pill" onclick="preset('prev',this)">Mes anterior</button>
+    <button class="tb-pill" onclick="preset('7',this)">Últimos 7 días</button>
+    <button class="tb-pill" onclick="preset('14',this)">Últimos 14 días</button>
   </div>
   <button class="tb-apply" id="btnPdf" style="margin-left:auto;" onclick="exportPDF()">⬇ Exportar PDF</button>
 </div>
@@ -260,7 +263,7 @@ table.ke-t tfoot td:first-child{text-align:left;}
       <h1 class="ke-pg-title">OVER<span>VIEW</span></h1>
       <div class="ke-pg-sub">Oxford Polo Club · <span class="dateauto"></span> · vs. período anterior de igual duración</div>
     </div>
-    <div class="ke-pg-stat"><div id="stat-ov-ov" class="ke-pg-stat-val">—</div><div class="ke-pg-stat-lbl">ACOS general</div></div>
+    <div class="ke-pg-stat"><div id="stat-ov-ov" class="ke-pg-stat-val">—</div><div class="ke-pg-stat-lbl">ACOS general</div><div id="ks-ov-ov" class="ke-ks"></div></div>
   </div>
 
   <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Objetivos del mes · avance</span><span id="goal-mes" class="ke-goal-mes"></span></div>
@@ -283,17 +286,17 @@ table.ke-t tfoot td:first-child{text-align:left;}
 
   <div class="ke-2col">
     <div class="ke-block"><div class="ke-block-top"></div>
-      <div class="ke-bh"><span class="ke-bt">Distribución de usuarios por fuente</span></div>
+      <div class="ke-bh"><span class="ke-bt">Distribución de sesiones por fuente</span></div>
       <div style="display:flex;gap:22px;align-items:center;padding:14px 6px;">
         <div class="donut-wrap" style="width:250px;height:250px;flex:none;">
           <canvas id="cUsers"></canvas>
-          <div class="donut-center"><div id="users-total" class="ke-kv" style="font-size:24px;">—</div><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ke-muted);">usuarios</div><div id="users-delta" class="ke-ks" style="margin-top:4px;"></div></div>
+          <div class="donut-center"><div id="users-total" class="ke-kv" style="font-size:24px;">—</div><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ke-muted);">sesiones</div><div id="users-delta" class="ke-ks" style="margin-top:4px;"></div></div>
         </div>
         <div id="users-legend" style="flex:1;min-width:0;padding:0 22px 0 2px;"></div>
       </div>
     </div>
     <div class="ke-block"><div class="ke-block-top"></div>
-      <div class="ke-bh"><span class="ke-bt">Evolución diaria de usuarios</span></div>
+      <div class="ke-bh"><span class="ke-bt">Evolución diaria de sesiones</span></div>
       <div class="ke-bbody"><div class="ke-chartbox users"><canvas id="cUsersDia"></canvas></div></div>
     </div>
   </div>
@@ -309,7 +312,7 @@ table.ke-t tfoot td:first-child{text-align:left;}
       <h1 class="ke-pg-title">PAID <span>MEDIA</span></h1>
       <div class="ke-pg-sub">Oxford Polo Club · <span class="dateauto"></span> · vs. período anterior de igual duración</div>
     </div>
-    <div class="ke-pg-stat"><div id="stat-ov" class="ke-pg-stat-val">—</div><div class="ke-pg-stat-lbl">ACOS general</div></div>
+    <div class="ke-pg-stat"><div id="stat-ov" class="ke-pg-stat-val">—</div><div class="ke-pg-stat-lbl">ACOS general</div><div id="ks-ov" class="ke-ks"></div></div>
   </div>
 
   <div class="ke-sec-head"><div class="ke-sec-line b"></div><span class="ke-sec-label">Inversión · Meta Ads</span><span class="ke-goal-mes">Excluye <b>kb_lead_mayorista</b> y <b>kb_trafico_ig</b></span><img class="srclogo" src="data:image/png;base64,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" alt="meta"></div>
@@ -576,8 +579,11 @@ function render(c,p,D){
   if(!c.clicksSrc) nota('ks-gcpc','Detrics no envía clics ni avg. CPC');
   else if(c.clicksSrc==='avg_cpc') setHTML('ks-gcpc',deltaHTML(c.gCpc,p.gCpc,true)+' · clics derivados de avg. CPC');
   else setHTML('ks-gcpc',deltaHTML(c.gCpc,p.gCpc,true));
-  setTxt('stat-ov',pct(c.acosGeneral));
-  setTxt('stat-ov-ov',pct(c.acosGeneral));
+  /* ACOS general contra el periodo anterior. El tercer parametro de deltaHTML marca que
+     aca bajar es lo bueno, igual que en los ACOS de Meta y Google. El denominador es la
+     facturacion de Tiendanube, no GA4, asi que no depende de la guarda gRevOk. */
+  setTxt('stat-ov',pct(c.acosGeneral)); setHTML('ks-ov',deltaHTML(c.acosGeneral,p.acosGeneral,true));
+  setTxt('stat-ov-ov',pct(c.acosGeneral)); setHTML('ks-ov-ov',deltaHTML(c.acosGeneral,p.acosGeneral,true));
 
   const N=dayDiff(state.from,state.to)+1;
   const lab=[],fdata=[];
@@ -585,16 +591,19 @@ function render(c,p,D){
   for(let i=0;i<N;i++){const d=addDays(state.from,i);lab.push(d.getDate()+'/'+(d.getMonth()+1));fdata.push(fac[iso(d)]||0);}
   mkLine('cFactDia',lab,[{label:'Facturación',data:fdata,borderColor:ORANGE,backgroundColor:'rgba(255,112,10,.12)',fill:true,tension:.3,pointRadius:N>45?0:3,pointBackgroundColor:ORANGE,borderWidth:2}],false);
 
-  const ch={}; D.ga4cur.forEach(x=>{const k=(x.source_medium||'(n/d)').trim();ch[k]=(ch[k]||0)+(+x.total_users||0);});
+  /* Donut y evolucion diaria miden SESIONES, no usuarios: es la unidad con la que se
+     calcula la tasa de conversion del tablero (ordenes / sesiones), asi que las tres
+     piezas hablan de lo mismo. c.users sigue calculandose por si hace falta. */
+  const ch={}; D.ga4cur.forEach(x=>{const k=(x.source_medium||'(n/d)').trim();ch[k]=(ch[k]||0)+(+x.sessions||0);});
   let arr=Object.entries(ch).map(([k,v])=>({k,v})).sort((a,b)=>b.v-a.v);
   const top=arr.slice(0,7); const otros=arr.slice(7).reduce((s,x)=>s+x.v,0); if(otros>0) top.push({k:'Otros',v:otros});
-  setTxt('users-total',fmtInt(c.users)); setHTML('users-delta',deltaHTML(c.users,p.users,false));
+  setTxt('users-total',fmtInt(c.sesiones)); setHTML('users-delta',deltaHTML(c.sesiones,p.sesiones,false));
   mkDonut('cUsers',top.map(x=>x.k),top.map(x=>x.v));
-  setHTML('users-legend',top.map((x,i)=>'<div class="legend-tr"><span class="dot" style="background:'+PAL[i%PAL.length]+'"></span>'+x.k+'<span class="pct">'+(c.users?(x.v/c.users*100):0).toFixed(1).replace('.',',')+'%</span></div>').join(''));
+  setHTML('users-legend',top.map((x,i)=>'<div class="legend-tr"><span class="dot" style="background:'+PAL[i%PAL.length]+'"></span>'+x.k+'<span class="pct">'+(c.sesiones?(x.v/c.sesiones*100):0).toFixed(1).replace('.',',')+'%</span></div>').join(''));
 
   const cu={},pu={};
-  D.ga4cur.forEach(x=>{cu[x.date]=(cu[x.date]||0)+(+x.total_users||0);});
-  D.ga4prev.forEach(x=>{pu[x.date]=(pu[x.date]||0)+(+x.total_users||0);});
+  D.ga4cur.forEach(x=>{cu[x.date]=(cu[x.date]||0)+(+x.sessions||0);});
+  D.ga4prev.forEach(x=>{pu[x.date]=(pu[x.date]||0)+(+x.sessions||0);});
   const cur2=[],prev2=[];
   for(let i=0;i<N;i++){cur2.push(cu[iso(addDays(state.from,i))]||0);prev2.push(pu[iso(addDays(D.pFrom,i))]||0);}
   mkLine('cUsersDia',lab,[
@@ -936,9 +945,11 @@ a:hover .ig-thumb-na{background:rgba(255,112,10,.1);}
       const follOk=L.followers!=null;
       igSet('ig-followers',follOk?igInt(L.followers):'—'); igSet('ig-stat-foll',follOk?igInt(L.followers):'—');
       /* Seguidores netos: delta entre la primera y la ultima medicion del periodo.
-         Se descartan las filas con followers NULL a proposito: hoy la query ig_account_lifetime
-         de Detrics no manda la columna, y restar nulos mostraria un "+0" falso en vez de
-         un dato faltante. Se enciende solo cuando el origen empiece a mandarla. */
+         Se descartan las filas con followers NULL a proposito: restar nulos mostraria un "+0"
+         falso en vez de un dato faltante.
+         Al 07/09/2026 la query ig_account_lifetime SI manda Followers (63.521) y el ETL
+         oxford-ig-account-lifetime la carga todos los dias a las 10:09. El historico arranco
+         ese dia, asi que hasta tener 2+ fechas cargadas esto muestra "-" con razon. */
       const _pfN=(typeof state!=='undefined'&&state&&state.from)?iso(state.from):null;
       const _ptN=(typeof state!=='undefined'&&state&&state.to)?iso(state.to):null;
       const lifeAll=(life||[]).filter(r=>r&&r.fecha&&r.followers!=null).sort((a,b)=>a.fecha<b.fecha?-1:1);
@@ -949,12 +960,12 @@ a:hover .ig-thumb-na{background:rgba(255,112,10,.1);}
         igSet('ig-ks-netfoll','Del '+igShortDate(lifeRange[0].fecha)+' al '+igShortDate(lifeRange[lifeRange.length-1].fecha));
       }else{
         igSet('ig-netfoll','—');
-        igSet('ig-ks-netfoll',lifeAll.length?'Necesita 2+ días de histórico':'Detrics no envía followers');
+        igSet('ig-ks-netfoll',lifeAll.length?'Necesita 2+ días de histórico':'Sin histórico de seguidores cargado');
       }
       igSet('ig-reach',igInt(D.account_reach)); igSet('ig-views',igInt(D.account_views));
       igSet('ig-inter',igInt(D.account_total_interactions));
       igSet('ig-profile',igInt(D.account_profile_views)); igSet('ig-web',igInt(D.account_website_clicks));
-      igKs('ig-ks-followers',L.followers,follOk&&Lp&&Lp.followers,follOk?'Total de la cuenta':'⚠ Detrics devuelve la query de insights en vez de Followers');
+      igKs('ig-ks-followers',L.followers,follOk&&Lp&&Lp.followers,follOk?'Total de la cuenta':'⚠ Sin datos en oxford_ig_account_lifetime');
       igKs('ig-ks-reach',D.account_reach,Dp&&Dp.account_reach,'Cuentas alcanzadas');
       igKs('ig-ks-views',D.account_views,Dp&&Dp.account_views,'Views de contenido');
       igKs('ig-ks-inter',D.account_total_interactions,Dp&&Dp.account_total_interactions,'Likes + coment. + guardados + comp.');
@@ -988,10 +999,12 @@ a:hover .ig-thumb-na{background:rgba(255,112,10,.1);}
       const _sel=document.getElementById('ig-topn');const _v=_sel?_sel.value:'10';
       const top=(_v==='all')?monthly.slice():monthly.slice(0,parseInt(_v,10));
       const rowsHTML=top.map(p=>{
-        /* Detrics manda la miniatura como imagen dentro de la celda ("Thumbnail Image"), asi que
-           la API de Sheets la devuelve vacia y thumbnail_url queda NULL. Hasta que llegue la URL
-           en texto se muestra un link claro al post en vez de un cuadro gris. Las URLs del CDN de
-           Instagram tambien caducan, de ahi el onerror. */
+        /* El Sheet trae "Thumbnail Url" en texto pero vacia en cerca de la mitad de las filas, y
+           "Media Image" / "Thumbnail Image" son formulas =IMAGE(...) que la API de Sheets devuelve
+           vacias con el render por defecto. Desde el 07/09/2026 el ETL lee con render FORMULA y les
+           saca la URL, asi que thumbnail_url llega en las 57 filas. El fallback igual se deja: las
+           URLs del CDN de Instagram caducan, de ahi el onerror, y un link claro al post es mejor
+           que un cuadro gris. */
         const naThumb='<div class="ig-thumb ig-thumb-na">ver post ↗</div>';
         const th=p.thumbnail_url
           ?'<img class="ig-thumb" src="'+igEsc(p.thumbnail_url)+'" loading="lazy" referrerpolicy="no-referrer" alt="Miniatura del post" onerror="this.outerHTML=&#39;<div class=\\&#39;ig-thumb ig-thumb-na\\&#39;>ver post ↗</div>&#39;">'
