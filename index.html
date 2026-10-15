@@ -131,6 +131,28 @@ table.ke-t tfoot td:first-child{text-align:left;}
 .tb-pill{font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--ke-muted);background:transparent;border:1px solid var(--ke-border);border-radius:999px;padding:6px 13px;cursor:pointer;transition:all .15s;}
 .tb-pill:hover{color:var(--ke-text);border-color:rgba(255,112,10,.4);}
 .tb-pill.active{color:#191919;background:var(--ke-orange);border-color:var(--ke-orange);font-weight:700;}
+/* Calendario personalizado estilo Looker */
+.tb-cal-wrap{position:relative;}
+.tb-cal{position:absolute;top:calc(100% + 8px);left:0;z-index:250;width:300px;max-width:calc(100vw - 32px);background:var(--ke-card);border:1px solid rgba(255,112,10,.3);border-radius:12px;padding:14px;box-shadow:0 14px 36px rgba(0,0,0,.55);display:none;}
+.tb-cal.open{display:block;}
+.tb-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.tb-cal-title{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ke-text);font-family:'General Sans',sans-serif;}
+.tb-cal-nav{background:transparent;border:1px solid var(--ke-border);color:var(--ke-text);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.tb-cal-nav:hover:not(:disabled){border-color:var(--ke-orange);color:var(--ke-orange);}
+.tb-cal-nav:disabled{opacity:.3;cursor:default;}
+.tb-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);column-gap:0;row-gap:3px;}
+.tb-cal-dow{font-size:8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ke-muted);text-align:center;padding:2px 0 6px;}
+.tb-cal-day{font-size:11px;font-family:'General Sans',sans-serif;font-variant-numeric:tabular-nums;border:none;background:transparent;color:var(--ke-text);height:32px;border-radius:7px;cursor:pointer;transition:background .1s;}
+.tb-cal-day:hover:not(:disabled){background:rgba(255,112,10,.18);}
+.tb-cal-day:disabled{color:var(--ke-muted);opacity:.25;cursor:default;}
+.tb-cal-day.in-range{background:rgba(255,112,10,.14);border-radius:0;}
+.tb-cal-day.range-start,.tb-cal-day.range-end{background:var(--ke-orange);color:#191919;font-weight:700;}
+.tb-cal-day.range-start{border-radius:7px 0 0 7px;}
+.tb-cal-day.range-end{border-radius:0 7px 7px 0;}
+.tb-cal-day.range-start.range-end{border-radius:7px;}
+.tb-cal-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;}
+.tb-cal-sel{font-size:10px;color:var(--ke-muted);line-height:1.3;}
+.tb-cal-hint{font-size:9px;color:var(--ke-muted);opacity:.7;margin-top:8px;letter-spacing:.02em;}
 
 .ke-kv{font-weight:500;}
 .ke-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:8px;}
@@ -238,9 +260,25 @@ table.ke-t tfoot td:first-child{text-align:left;}
   <span class="tb-lbl">Período</span>
   <div class="tb-pills">
     <button class="tb-pill active" onclick="preset('mtd',this)">Mes en curso</button>
-    <button class="tb-pill" onclick="preset('prev',this)">Mes anterior</button>
     <button class="tb-pill" onclick="preset('7',this)">Últimos 7 días</button>
     <button class="tb-pill" onclick="preset('14',this)">Últimos 14 días</button>
+    <button class="tb-pill" onclick="preset('prev',this)">Mes anterior</button>
+    <div class="tb-cal-wrap">
+      <button class="tb-pill" id="pillCustom" onclick="toggleCal(this)">Personalizado ▾</button>
+      <div class="tb-cal" id="tbCal" role="dialog" aria-label="Rango de fechas personalizado">
+        <div class="tb-cal-head">
+          <button type="button" class="tb-cal-nav" id="calPrev" onclick="calShift(-1)" aria-label="Mes anterior">‹</button>
+          <span class="tb-cal-title" id="calTitle">—</span>
+          <button type="button" class="tb-cal-nav" id="calNext" onclick="calShift(1)" aria-label="Mes siguiente">›</button>
+        </div>
+        <div class="tb-cal-grid" id="calGrid"></div>
+        <div class="tb-cal-foot">
+          <span class="tb-cal-sel" id="calSel">Elegí la fecha de inicio</span>
+          <button type="button" class="tb-apply" id="calApply" onclick="calApply()" disabled>Aplicar</button>
+        </div>
+        <div class="tb-cal-hint">Hasta 90 días atrás · termina ayer</div>
+      </div>
+    </div>
   </div>
   <button class="tb-apply" id="btnPdf" style="margin-left:auto;" onclick="exportPDF()">⬇ Exportar PDF</button>
 </div>
@@ -682,6 +720,90 @@ function labelRange(){
   document.querySelectorAll('.dateauto').forEach(e=>e.textContent=txt);
 }
 function setRange(from,to){state.from=from;state.to=to;labelRange();loadData();if(window.__igReload)window.__igReload();}
+/* ===== Selector de período personalizado (estilo Looker) =====
+   Un calendario mes a mes: primer clic fija el inicio, segundo el fin
+   (se ordena solo si van al reves). Ventana permitida: desde 90 dias
+   atras hasta AYER, igual que el resto del dashboard (el dia en curso
+   esta incompleto). Al aplicar, state.preset='custom' y labelRange()
+   ya muestra la etiqueta "período personalizado". */
+const cal={view:null,selStart:null,selEnd:null,min:null,max:null,picking:false};
+const CAL_DOW=['do','lu','ma','mi','ju','vi','sá'];
+function calMid(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+function caldiff(a,b){return Math.round((calMid(b)-calMid(a))/86400000);}
+function calBounds(){const now=new Date();cal.max=calMid(addDays(now,-1));cal.min=calMid(addDays(now,-90));}
+function sameDay(a,b){return !!a&&!!b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function toggleCal(){
+  const box=document.getElementById('tbCal'); if(!box)return;
+  if(box.classList.contains('open')){closeCal();return;}
+  calBounds();
+  /* arranca desde la seleccion vigente, recortada a la ventana permitida */
+  let s=state.from?calMid(state.from):new Date(cal.max);
+  let e=state.to?calMid(state.to):new Date(cal.max);
+  if(s<cal.min)s=new Date(cal.min); if(s>cal.max)s=new Date(cal.max);
+  if(e>cal.max)e=new Date(cal.max); if(e<cal.min)e=new Date(cal.min);
+  cal.selStart=s; cal.selEnd=e; cal.picking=false;
+  cal.view=new Date(e.getFullYear(),e.getMonth(),1);
+  calRender();
+  box.classList.add('open');
+  setTimeout(()=>document.addEventListener('mousedown',calOutside),0);
+}
+function closeCal(){const box=document.getElementById('tbCal');if(box)box.classList.remove('open');document.removeEventListener('mousedown',calOutside);}
+function calOutside(e){if(!e.target.closest('.tb-cal-wrap'))closeCal();}
+function calShift(n){cal.view=new Date(cal.view.getFullYear(),cal.view.getMonth()+n,1);calRender();}
+function calPick(y,m,d){
+  const day=new Date(y,m,d);
+  if(day<cal.min||day>cal.max)return;
+  if(!cal.picking){cal.selStart=day;cal.selEnd=null;cal.picking=true;}
+  else{
+    cal.selEnd=day;cal.picking=false;
+    if(cal.selEnd<cal.selStart){const t=cal.selStart;cal.selStart=cal.selEnd;cal.selEnd=t;}
+  }
+  calRender();
+}
+function calRender(){
+  const grid=document.getElementById('calGrid');if(!grid)return;
+  const vy=cal.view.getFullYear(),vm=cal.view.getMonth();
+  document.getElementById('calTitle').textContent=MES[vm].charAt(0).toUpperCase()+MES[vm].slice(1)+' '+vy;
+  document.getElementById('calPrev').disabled=(new Date(vy,vm,0)<cal.min);     /* ultimo dia del mes previo < min */
+  document.getElementById('calNext').disabled=(new Date(vy,vm,1)>cal.max);     /* primer dia del mes siguiente > max */
+  const s=cal.selStart,e=cal.selEnd;
+  let html='';
+  CAL_DOW.forEach(d=>html+='<div class="tb-cal-dow">'+d+'</div>');
+  const startDow=new Date(vy,vm,1).getDay();
+  for(let i=0;i<startDow;i++)html+='<div></div>';
+  const dim=new Date(vy,vm+1,0).getDate();
+  for(let d=1;d<=dim;d++){
+    const day=new Date(vy,vm,d);
+    const dis=(day<cal.min||day>cal.max);
+    let cls='tb-cal-day';
+    if(s&&e){
+      if(day>=s&&day<=e){
+        if(sameDay(s,e))cls+=' range-start range-end';
+        else if(sameDay(day,s))cls+=' range-start';
+        else if(sameDay(day,e))cls+=' range-end';
+        else cls+=' in-range';
+      }
+    }else if(s&&sameDay(day,s)){cls+=' range-start range-end';}
+    html+='<button type="button" class="'+cls+'"'+(dis?' disabled':'')+' onclick="calPick('+vy+','+vm+','+d+')">'+d+'</button>';
+  }
+  grid.innerHTML=html;
+  const sel=document.getElementById('calSel'),apply=document.getElementById('calApply');
+  if(s&&e&&!cal.picking){
+    const fmt=x=>x.getDate()+' '+MES[x.getMonth()];
+    const n=caldiff(s,e)+1;
+    sel.textContent=fmt(s)+' — '+fmt(e)+' · '+n+' día'+(n>1?'s':'');
+    apply.disabled=false;
+  }else if(cal.picking){sel.textContent='Elegí la fecha de fin';apply.disabled=true;}
+  else{sel.textContent='Elegí la fecha de inicio';apply.disabled=true;}
+}
+function calApply(){
+  if(!cal.selStart||!cal.selEnd||cal.picking)return;
+  document.querySelectorAll('.tb-pill').forEach(p=>p.classList.remove('active'));
+  const pc=document.getElementById('pillCustom');if(pc)pc.classList.add('active');
+  state.preset='custom';
+  closeCal();
+  setRange(calMid(cal.selStart),calMid(cal.selEnd));
+}
 function preset(r,el){
   document.querySelectorAll('.tb-pill').forEach(p=>p.classList.remove('active')); if(el)el.classList.add('active');
   const now=new Date(),y=atMidnight(addDays(now,-1));
