@@ -256,6 +256,12 @@ table.ke-t tfoot td:first-child{text-align:left;}
 </div>
 
 <div class="ke-wrap">
+<!-- Banner de evento (Cyber/Hot Sale): aparece solo si eventos.activo=true. Reversible sin tocar el dashboard. -->
+<a id="ke-evento-banner" href="/evento" aria-hidden="true" style="display:none;align-items:center;gap:11px;justify-content:center;margin:14px 0 2px;padding:13px 20px;border-radius:14px;text-decoration:none;background:linear-gradient(90deg,rgba(255,112,10,.18),rgba(255,112,10,.05));border:1px solid rgba(255,112,10,.42);color:#ff700a;font-weight:700;letter-spacing:.02em;font-size:13px">
+  <span style="display:inline-flex;width:8px;height:8px;border-radius:50%;background:#4dcc80;flex-shrink:0"></span>
+  <span id="ke-evento-txt">Evento en vivo</span>
+  <span style="opacity:.85;font-weight:600">· ver el tablero del evento &rarr;</span>
+</a>
 <div class="ke-toolbar">
   <span class="tb-lbl">Período</span>
   <div class="tb-pills">
@@ -1205,5 +1211,17 @@ a:hover .ig-thumb-na{background:rgba(255,112,10,.1);}
 })();
 </script>
 
+<script>
+/* Banner de evento: muestra el acceso a /evento solo si la fila de este cliente
+   en la tabla `eventos` tiene activo=true. Para apagarlo post-evento: activo=false. */
+(function(){
+  var U="https://yixbnmwdzexjygmtszii.supabase.co";
+  var K="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpeGJubXdkemV4anlnbXRzemlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NzE5NjMsImV4cCI6MjA5NzU0Nzk2M30.W6ID6GDrY3kvDwNzjfPCcnkIsmFbcFm_YwhuraGAEo4";
+  fetch(U+"/rest/v1/eventos?select=nombre,activo&cliente=eq."+encodeURIComponent("oxford polo club"),{headers:{apikey:K,Authorization:"Bearer "+K}})
+    .then(function(r){return r.ok?r.json():[];})
+    .then(function(rows){var e=rows&&rows[0];if(e&&e.activo===true){var b=document.getElementById("ke-evento-banner");if(b){var t=document.getElementById("ke-evento-txt");if(t)t.textContent=(e.nombre||"Evento")+" en vivo";b.style.display="flex";b.setAttribute("aria-hidden","false");}}})
+    .catch(function(){});
+})();
+</script>
 </body>
 </html>
