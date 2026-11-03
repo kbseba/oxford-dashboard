@@ -317,6 +317,14 @@ const TN_STATUS=['paid','partially_refunded']; // estados de Tiendanube que cuen
 // criterio que el dashboard común. Paid = el MEDIO es cpc|ppc|paid|paid_social|display (google / cpc, ig · fb · an · th / paid…).
 // Es atribución de GA4 a pauta, no el total de la tienda: no coincide con el L10 a propósito.
 const GA4_PAID_ONLY=false;   // build: true sólo para sellers sin Tiendanube ni planilla de ventas
+// Proyección diaria acordada con el cliente. Si está, los KPIs y el gráfico diario comparan contra ella en lugar del
+// período anterior / objetivo plano. eventos.proyeccion (jsonb, mismo formato) tiene prioridad si existe.
+const PROY_LOCAL={
+  '2026-10-30':{fact:1820000,ord:14}, '2026-10-31':{fact:2600000,ord:20}, '2026-11-01':{fact:2990000,ord:23},
+  '2026-11-02':{fact:7800000,ord:60}, '2026-11-03':{fact:6432487,ord:49}, '2026-11-04':{fact:7909885,ord:61},
+  '2026-11-05':{fact:3334944,ord:26}, '2026-11-06':{fact:2447525,ord:19}, '2026-11-07':{fact:1299118,ord:10},
+  '2026-11-08':{fact:3014836,ord:23}
+};
 // Sellers sin Tiendanube con planilla de ventas (p. ej. El Burgués): la facturación y las órdenes salen de {prefix}_facturacion
 // (venta_real, pedidos), con el mismo criterio que el dashboard común (suma de venta_real / pedidos; conversión =
 // pedidos / sesiones GA4 de todo el sitio). Es diaria: sin desglose por hora. Los días sin cargar quedan en "—".
@@ -335,6 +343,7 @@ const M=v=>moneyC(v), K=v=>moneyC(v);
 const pc=(n,d=1)=>nf(n,d)+'%';
 const dlt=(v,inv=false)=>{if(v==null||!isFinite(v))return '<span class="delta">—</span>';const ar=v>0?'▲':'▼';return `<span class="delta ${(inv?v<0:v>0)?'up':'dn'}">${ar} ${nf(Math.abs(v),1)}%</span>`;};
 function dpct(cur,prev,inv){if(prev==null||prev===0||!isFinite(prev))return '<span class="delta">—</span> vs período ant.';return dlt((cur-prev)/prev*100,inv)+' vs período ant.';}
+function dproy(cur,proj){if(!proj||!isFinite(proj))return '<span class="delta">—</span> vs proyección';return dlt((cur-proj)/proj*100)+' vs proyección';}
 
 /* ============ FECHAS ============ */
 function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -368,7 +377,7 @@ let CFG=null;                 // fila de eventos
 let DATA={};                  // crudo por tabla
 let DAYS=[];                  // [{k:'YYYY-MM-DD', dow, dm, avail}]
 let CTX={};                   // {all:{head,deltas}, 'YYYY-MM-DD':{...}}
-let OBJ={}, RITMO=0, LASTTS='';
+let OBJ={}, RITMO=0, LASTTS='', PROY=null;
 const state={tab:'overview',day:'all',postsN:5,postsFilter:'all',itemsSort:'v'};
 const HAS={tienda:true,paid:true,google:true,meli:false,social:false,sprint:false,email:false};
 
@@ -380,6 +389,7 @@ async function boot(){
   }catch(e){}
   if(!CFG){document.getElementById('content').innerHTML='<div class="empty"><div class="ei">⚠️</div><h4>No hay evento configurado</h4><p>No se encontró una fila en <b>eventos</b> para este cliente.</p></div>';return;}
   OBJ={fact:+CFG.obj_facturacion||0,ord:+CFG.obj_ordenes||0,invMeta:+CFG.obj_inv_meta||0,invGoogle:+CFG.obj_inv_google||0,acosLim:+CFG.acos_limite||0};
+  const pj=CFG.proyeccion||PROY_LOCAL; PROY=pj&&Object.keys(pj).length?pj:null;
   applyBranding();
   await loadData();
 }
@@ -591,6 +601,24 @@ function dayState(){
 }
 function deltasAll(){const a=CTX.all.head,p=CTX.all.prev;const r=(c,pv)=>(pv?((c-pv)/pv*100):null);
   return {fact:r(a.fact,p.fact),ord:r(a.ord,p.ord),ticket:r(a.ticket,p.ticket),cvr:r(a.cvr,p.cvr),ses:r(a.ses,p.ses),usr:r(a.usr,p.usr)};}
+// proyección acumulada hasta el último dato cargado (o la del día elegido); el día en curso se prorratea por hora
+function proyAt(dk){
+  if(!PROY)return null;
+  // último día con facturación cargada (Tiendanube puede ir adelante de GA4, que es lo que marca LASTTS)
+  const withFact=DAYS.filter(d=>CTX[d.k]&&CTX[d.k].head.fact>0).map(d=>d.k);
+  const last=[(LASTTS||'').slice(0,10),...withFact].sort().slice(-1)[0], td=iso(DATA._win.today), now=DATA._win.today;
+  const frac=(now.getHours()+now.getMinutes()/60)/24;
+  const keys=(dk?[dk]:DAYS.map(d=>d.k)).filter(k=>last&&k<=last&&PROY[k]);
+  if(!keys.length)return null;
+  let fact=0,ord=0; keys.forEach(k=>{const w=k===td?frac:1; fact+=(+PROY[k].fact||0)*w; ord+=(+PROY[k].ord||0)*w;});
+  return {fact,ord,ticket:ord?fact/ord:0};
+}
+// sublínea del KPI: vs proyección si hay (conversión no está proyectada); si no, vs período anterior sólo en el acumulado
+function cmp(m,h,fb){
+  const all=state.day==='all';
+  if(PROY&&m!=='cvr'){const p=proyAt(all?null:state.day);return p?dproy(h[m],p[m]):fb;}
+  return all?dpct(h[m],CTX.all.prev[m]):fb;
+}
 
 /* ============ RENDER HEAD ============ */
 function head(){
@@ -599,7 +627,7 @@ function head(){
   document.getElementById('ptitle').innerHTML=TITLES[state.tab][1];
   const nombreCliente=titleCase(CLIENTE_KEY);
   const periodo=state.day==='all'?`${fmtD(DATA._win.S_cur)} – ${fmtD(DATA._win.E_cur)}`:D.dayLabel;
-  document.getElementById('pctx').innerHTML=`<b>${nombreCliente}</b> · ${CFG.nombre} · ${D.future?('día aún no transcurrido · comienza el '+D.dm):periodo} · vs. período anterior equivalente`;
+  document.getElementById('pctx').innerHTML=`<b>${nombreCliente}</b> · ${CFG.nombre} · ${D.future?('día aún no transcurrido · comienza el '+D.dm):periodo} · ${PROY?'vs. proyección acordada':'vs. período anterior equivalente'}`;
   document.getElementById('upd').innerHTML=`<i></i>Último dato cargado: <b>${fmtD(LASTTS)}</b>${DATA._hasFact?` · ventas hasta <b>${fmtD(DATA._lastFact)}</b>`:''} &nbsp;·&nbsp; datos reales desde Supabase`;
 }
 function fmtD(s){if(!s)return '—';const d=parseISO(s.slice(0,10));return d.getDate()+'/'+(d.getMonth()+1);}
@@ -650,14 +678,14 @@ function ovTab(D){
   </div>`:''}
   ${secH('Tienda · resumen',(h.factSrc==='Tiendanube'||h.factSrc==='Ventas')?'Facturación real':factPill(h,'Facturación GA4'),h.factSrc==='Tiendanube'?{src:L.tiendanube,alt:'Tiendanube'}:null)}
   <div class="kgrid kg4">
-    ${kc(factLbl(h),FX(h,M(h.fact)),objAll?dpct(h.fact,CTX.all.prev.fact):(h.factSrc==='Ventas'?'planilla de ventas':h.factSrc),1)}
-    ${kc('Ticket promedio',FX(h,M(h.ticket)),objAll?dpct(h.ticket,CTX.all.prev.ticket):'nominal')}
-    ${kc(isPaidSrc(h)?'Tasa de conversión (paid)':'Tasa de conversión',FX(h,pc(h.cvr,2)),objAll?dpct(h.cvr,CTX.all.prev.cvr):(isPaidSrc(h)?'órdenes / sesiones paid':'órdenes / sesiones'))}
-    ${kc(ordLbl(h),FX(h,nf(h.ord)),objAll?dpct(h.ord,CTX.all.prev.ord):'transacciones')}
+    ${kc(factLbl(h),FX(h,M(h.fact)),cmp('fact',h,h.factSrc==='Ventas'?'planilla de ventas':h.factSrc),1)}
+    ${kc('Ticket promedio',FX(h,M(h.ticket)),cmp('ticket',h,'nominal'))}
+    ${kc(isPaidSrc(h)?'Tasa de conversión (paid)':'Tasa de conversión',FX(h,pc(h.cvr,2)),cmp('cvr',h,isPaidSrc(h)?'órdenes / sesiones paid':'órdenes / sesiones'))}
+    ${kc(ordLbl(h),FX(h,nf(h.ord)),cmp('ord',h,'transacciones'))}
   </div>
   ${secH('Tendencia del evento · facturación por día',isPaidSrc(h)?'Por día · atribuida a pauta (GA4)':'Por día')}
   <div class="chart"><div class="ch"><span class="ct">${isPaidSrc(h)?'Facturación atribuida a pauta (GA4) por día':'Facturación por día'}</span>
-    <div class="legend"><span><i style="background:#ff700a"></i>Facturación</span><span><i style="background:rgba(230,230,230,.14);border:1px solid rgba(230,230,230,.3)"></i>Objetivo diario</span></div></div>
+    <div class="legend"><span><i style="background:#ff700a"></i>Facturación</span><span><i style="background:rgba(230,230,230,.14);border:1px solid rgba(230,230,230,.3)"></i>${PROY?'Proyección':'Objetivo diario'}</span></div></div>
     <div id="daily"></div></div>
   ${secH('Distribución de sesiones por fuente',nf(h.ses)+' sesiones · GA4')}
   ${srcBars(h)}`;
@@ -684,10 +712,10 @@ function tiTab(D){
     <div class="bd">Inversión total <b style="color:var(--ke-text)">${M(h.inv)}</b> · ${isPaidSrc(h)?'facturación atribuida a pauta (GA4)':'facturación'} <b style="color:var(--ke-text)">${FX(h,M(h.fact))}</b> · ROAS ${FX(h,nf(h.inv?h.fact/h.inv:0,1)+'x')}.</div></div>
   ${secH('Comportamiento de la tienda · KPIs',(h.factSrc==='Tiendanube'||h.factSrc==='Ventas')?'Facturación real':factPill(h,'Facturación GA4 / revenue'),h.factSrc==='Tiendanube'?{src:L.tiendanube,alt:'Tiendanube'}:null)}
   <div class="kgrid kg4">
-    ${kc(factLbl(h),FX(h,M(h.fact)),objAll?dpct(h.fact,CTX.all.prev.fact):'',1)}
-    ${kc(ordLbl(h),FX(h,nf(h.ord)),objAll?dpct(h.ord,CTX.all.prev.ord):'')}
+    ${kc(factLbl(h),FX(h,M(h.fact)),cmp('fact',h,''),1)}
+    ${kc(ordLbl(h),FX(h,nf(h.ord)),cmp('ord',h,''))}
     ${kc('Sesiones',nf(h.ses),'Usuarios '+nf(h.usr))}
-    ${kc(isPaidSrc(h)?'Conversión (paid)':'Conversión',FX(h,pc(h.cvr,2)),objAll?dpct(h.cvr,CTX.all.prev.cvr):'')}
+    ${kc(isPaidSrc(h)?'Conversión (paid)':'Conversión',FX(h,pc(h.cvr,2)),cmp('cvr',h,''))}
   </div>
   ${atcOk?`${secH('Funnel de la tienda · de la sesión a la compra',useEv?'GA4 · sesiones con cada evento':'GA4 / revenue')}
   <div class="blk" style="padding:20px 22px"><div class="funnel">${funnelHtml}</div></div>`:''}
@@ -892,19 +920,21 @@ function drawCharts(D){const dEl=document.getElementById('daily'); if(dEl) drawD
 function drawDaily(box){
   const days=DAYS.map(d=>d.k);
   const total=days.length||1;
-  const objDay=OBJ.fact?OBJ.fact/total:0;
+  const objFlat=OBJ.fact?OBJ.fact/total:0;
+  const objs=days.map(dk=>PROY?(PROY[dk]?+PROY[dk].fact||0:0):objFlat);   // proyección por día si hay; si no, objetivo plano
   const real=days.map(dk=>{const c=CTX[dk];return c?c.head.fact:0;});
   const today=iso(DATA._win.today);
   const sel=state.day==='all'?-1:days.indexOf(state.day);
   const W=980,H=250,pad={l:52,r:12,t:14,b:40},iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
-  const max=Math.max(objDay,...real)*1.15||1,bw=iw/total,bar=bw*0.4,y=v=>pad.t+ih-(v/max)*ih;
+  const max=Math.max(...objs,...real)*1.15||1,bw=iw/total,bar=bw*0.4,y=v=>pad.t+ih-(v/max)*ih;
   let g='';
   for(let i=0;i<=3;i++){const gy=pad.t+ih-(i/3)*ih,val=max*i/3;
     g+=`<line x1="${pad.l}" y1="${gy}" x2="${W-pad.r}" y2="${gy}" stroke="rgba(230,230,230,.07)"/>`;
     g+=`<text x="${pad.l-8}" y="${gy+3}" text-anchor="end" font-size="9" fill="rgba(230,230,230,.38)" font-family="General Sans">${val>=1e6?('$'+(val/1e6).toFixed(1)+'M'):(val>=1e3?('$'+Math.round(val/1e3)+'k'):0)}</text>`;}
   DAYS.forEach((dd,i)=>{const cx=pad.l+bw*i+bw/2;const fut=dd.avail==='future';
     if(sel===i)g+=`<rect x="${cx-bw/2+3}" y="${pad.t}" width="${bw-6}" height="${ih}" rx="4" fill="rgba(255,112,10,.06)"/>`;
-    if(objDay)g+=`<rect x="${cx-bar-3}" y="${y(objDay)}" width="${bar}" height="${pad.t+ih-y(objDay)}" rx="2" fill="rgba(230,230,230,.05)" stroke="rgba(230,230,230,.22)" stroke-width="1"/>`;
+    const ob=objs[i];
+    if(ob)g+=`<rect x="${cx-bar-3}" y="${y(ob)}" width="${bar}" height="${pad.t+ih-y(ob)}" rx="2" fill="rgba(230,230,230,.05)" stroke="rgba(230,230,230,.22)" stroke-width="1"/>`;
     const rv=real[i]||0;
     if(rv>0){const partial=dd.k===today;g+=`<rect x="${cx+3}" y="${y(rv)}" width="${bar}" height="${pad.t+ih-y(rv)}" rx="2" fill="#ff700a" opacity="${partial?.78:1}"/>`;
       if(partial)g+=`<rect x="${cx+3}" y="${y(rv)}" width="${bar}" height="3" fill="rgba(255,255,255,.4)"/>`;}
