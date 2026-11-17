@@ -239,7 +239,6 @@ table.ke-t tfoot td:first-child{text-align:left;}
   <div class="ke-nav-tabs-desktop">
     <button type="button" class="ke-nav-tab active" onclick="goTo('p0',this)">Overview</button>
     <button type="button" class="ke-nav-tab" onclick="goTo('p1',this)">Paid Media</button>
-    <button type="button" class="ke-nav-tab" onclick="goTo('p3',this)">Social Media</button>
   </div>
   <button class="ke-nav-burger" id="navBurger" onclick="openMobileMenu()" aria-label="Abrir menú">&#9776;</button>
   <div class="ke-nav-date">Período <b id="navPeriod">—</b></div>
@@ -252,7 +251,6 @@ table.ke-t tfoot td:first-child{text-align:left;}
   </div>
   <button type="button" class="ke-nav-tab active" onclick="goTo('p0',this);closeMobileMenu()">Overview</button>
   <button type="button" class="ke-nav-tab" onclick="goTo('p1',this);closeMobileMenu()">Paid Media</button>
-  <button type="button" class="ke-nav-tab" onclick="goTo('p3',this);closeMobileMenu()">Social Media</button>
 </div>
 
 <div class="ke-wrap">
@@ -389,109 +387,6 @@ table.ke-t tfoot td:first-child{text-align:left;}
 </section>
 
 
-<section id="p3" class="ke-page">
-  <div class="ke-pg-header">
-    <div>
-      <div class="ke-eyebrow">Instagram · Orgánico</div>
-      <h1 class="ke-pg-title">SOCIAL<br><span>MEDIA</span></h1>
-      <div class="ke-pg-sub" id="ig-handle">@—</div>
-    </div>
-    <div class="ke-pg-stat">
-      <div class="ke-pg-stat-val" id="ig-stat-foll">—</div>
-      <div class="ke-pg-stat-lbl">Seguidores</div>
-    </div>
-  </div>
-
-  <div class="ke-pg-sub" id="ig-err" style="color:var(--ke-bad);margin:-16px 0 20px"></div>
-
-  <!-- Bloque 1 — Resumen (conteos; el detalle de alcance/reproducciones/etc. está en Rendimiento) -->
-  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Resumen de cuenta</span></div>
-  <div class="ig-sum">
-    <div class="ke-kc"><div class="ke-kl">Seguidores</div><div class="ke-kv" id="ig-followers">—</div><div class="ke-ks" id="ig-ks-followers">Total de la cuenta</div></div>
-    <div class="ke-kc g"><div class="ke-kl">Seguidores netos</div><div class="ke-kv g" id="ig-netfoll">—</div><div class="ke-ks" id="ig-ks-netfoll">En el período</div></div>
-    <div class="ke-kc b"><div class="ke-kl">Publicaciones en feed</div><div class="ke-kv b" id="ig-postcount">—</div><div class="ke-ks" id="ig-ks-postcount">En el período seleccionado</div></div>
-    <div class="ke-kc p"><div class="ke-kl">Stories publicadas</div><div class="ke-kv p" id="ig-storycount">—</div><div class="ke-ks" id="ig-ks-storycount">En el período seleccionado</div></div>
-  </div>
-
-  <!-- Bloque 0 — Rendimiento diario -->
-  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Rendimiento · según período seleccionado</span><span class="ke-goal-mes">tendencia del <b>período</b></span></div>
-  <div class="ke-grid-2 ig-trends">
-    <div class="ke-block ig-tc"><div class="ke-block-top"></div>
-      <div class="ig-tc-h"><span class="ig-tc-l">Visualizaciones</span><span class="ig-tc-v" id="igt-views">—</span><span class="ig-tc-d" id="igt-views-d"></span></div>
-      <div class="ig-tc-chart"><canvas id="igch-views"></canvas></div>
-    </div>
-    <div class="ke-block ig-tc"><div class="ke-block-top"></div>
-      <div class="ig-tc-h"><span class="ig-tc-l">Alcance</span><span class="ig-tc-v" id="igt-reach">—</span><span class="ig-tc-d" id="igt-reach-d"></span></div>
-      <div class="ig-tc-chart"><canvas id="igch-reach"></canvas></div>
-    </div>
-    <div class="ke-block ig-tc"><div class="ke-block-top"></div>
-      <div class="ig-tc-h"><span class="ig-tc-l">Interacciones con el contenido</span><span class="ig-tc-v" id="igt-inter">—</span><span class="ig-tc-d" id="igt-inter-d"></span></div>
-      <div class="ig-tc-chart"><canvas id="igch-inter"></canvas></div>
-    </div>
-    <div class="ke-block ig-tc"><div class="ke-block-top"></div>
-      <div class="ig-tc-h"><span class="ig-tc-l">Tasa de interacción</span><span class="ig-tc-v" id="igt-engrate">—</span><span class="ig-tc-d" id="igt-engrate-d"></span></div>
-      <div class="ig-tc-chart"><canvas id="igch-engrate"></canvas></div>
-    </div>
-    <div class="ke-block ig-tc"><div class="ke-block-top"></div>
-      <div class="ig-tc-h"><span class="ig-tc-l">Clics en el enlace</span><span class="ig-tc-v" id="igt-web">—</span><span class="ig-tc-d" id="igt-web-d"></span></div>
-      <div class="ig-tc-chart"><canvas id="igch-web"></canvas></div>
-    </div>
-    <div class="ke-block ig-tc"><div class="ke-block-top"></div>
-      <div class="ig-tc-h"><span class="ig-tc-l">Visitas al perfil</span><span class="ig-tc-v" id="igt-profile">—</span><span class="ig-tc-d" id="igt-profile-d"></span></div>
-      <div class="ig-tc-chart"><canvas id="igch-profile"></canvas></div>
-    </div>
-  </div>
-
-  <!-- Bloque 4 — Audiencia -->
-  <div class="ke-sec-head"><div class="ke-sec-line p"></div><span class="ke-sec-label">Audiencia · seguidores</span></div>
-  <div class="ke-grid-2">
-    <div class="ke-block">
-      <div class="ke-block-top"></div>
-      <div class="ke-bh"><span class="ke-bt">Seguidores por rango etario</span></div>
-      <div style="padding:16px;height:280px"><canvas id="ig-cAge"></canvas></div>
-    </div>
-    <div class="ke-block">
-      <div class="ke-block-top"></div>
-      <div class="ke-bh"><span class="ke-bt">Seguidores por género</span></div>
-      <div style="display:flex;align-items:center;gap:10px;padding:16px;height:280px">
-        <div style="flex:1;min-width:0;height:100%;position:relative"><canvas id="ig-cGender"></canvas></div>
-        <div id="ig-genderLegend" style="flex-shrink:0;min-width:130px"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bloque 3 — Contenido publicado -->
-  <div class="ke-sec-head"><div class="ke-sec-line o"></div><span class="ke-sec-label">Mejores publicaciones · período seleccionado</span><select id="ig-topn" class="ig-sel" autocomplete="off" onchange="window.igRenderPosts&&window.igRenderPosts()"><option value="10" selected>Top 10</option><option value="5">Top 5</option><option value="all">Todas</option></select><span class="ke-sec-pill ke-pill-orange" id="ig-stat-posts">Top 10</span></div>
-  <div class="ke-block">
-    <div class="ke-block-top"></div>
-    <div style="overflow-x:auto">
-      <table class="ke-t ig-t">
-        <thead><tr>
-          <th>Preview</th><th>Fecha</th><th>Tipo</th><th>Descripción</th>
-          <th class="acc">Alcance</th><th class="acc">Reprod.</th><th class="acc">Interac.</th>
-          <th>Me gusta</th><th>Coment.</th><th>Guardados</th><th>Compart.</th><th>Nuevos seg.</th>
-        </tr></thead>
-        <tbody id="ig-tbody"><tr><td colspan="12" class="ke-pg-sub">Cargando…</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Bloque 4 — Stories (Graph API, preview re-hosteada en Supabase Storage) -->
-  <div class="ke-sec-head"><div class="ke-sec-line b"></div><span class="ke-sec-label">Stories · período seleccionado</span><span class="ke-sec-pill ke-pill-orange" id="ig-stat-stories">—</span></div>
-  <div class="ke-block">
-    <div class="ke-block-top"></div>
-    <div style="overflow:auto;max-height:600px">
-      <table class="ke-t ig-t">
-        <thead><tr><th>Preview</th><th>Fecha</th><th>Tipo</th><th class="acc">Alcance</th><th class="acc">Views</th><th class="acc">Interac.</th><th>Respuestas</th></tr></thead>
-        <tbody id="ig-stbody"><tr><td colspan="7" class="ke-pg-sub">Cargando…</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Conclusiones &amp; accionables · Social Media</span><span class="ke-goal-mes">Sprint Review · <b>Notion</b></span></div>
-  <div id="insights-sm" class="ke-ins-wrap"><div class="ke-pg-sub">Cargando…</div></div>
-
-</section>
 
 </div>
 
@@ -589,7 +484,7 @@ async function loadData(){
   const S_cur=iso(state.from),E_cur=iso(state.to),S_prev=iso(pFrom),E_prev=iso(pTo);
   try{
     const [metaRaw,google,orders,ga4]=await Promise.all([
-      sb('oxford_meta_ads','date,campaign_name,ad_name,ad_image_url,ad_creative_body,ad_preview_link,amount_spent,impressions,landing_page_views,website_purchases,purchases_conv_value,ctr,video_view_3s,video_watch_100',S_prev,E_cur),
+      sb('oxford_meta_ads','date,campaign_name,ad_name,ad_image_url,ad_image_backup_url,ad_creative_body,ad_preview_link,amount_spent,impressions,landing_page_views,website_purchases,purchases_conv_value,ctr,video_view_3s,video_watch_100',S_prev,E_cur),
       sb('oxford_google_ads','date,campaign_name,cost,clicks,avg_cpc',S_prev,E_cur),
       sb('oxford_tiendanube_orders','date,order_payment_status,order_total_paid',S_prev,E_cur),
       sb('oxford_ga4_sessions','date,source_medium,total_users,sessions,transactions,total_revenue',S_prev,E_cur)
@@ -661,8 +556,12 @@ function render(c,p,D){
   const ads={};
   /* Se agrupa por ad_name: la URL de la imagen viene firmada por Meta y cambia todos los dias
      (parametros oh/oe y hasta el host del CDN), asi que agrupar por imagen partiria el mismo
-     anuncio en varias tarjetas dentro de un mismo periodo. */
-  D.metaCur.forEach(x=>{const k=x.ad_name||x.ad_image_url||x.ad_creative_body||x.campaign_name||'(s/anuncio)';const a=ads[k]=ads[k]||{img:x.ad_image_url,titulo:x.ad_name||'Sin nombre',camp:x.campaign_name||'',link:x.ad_preview_link||'',copy:'',impr:0,spend:0,lpv:0,pur:0,val:0,v3:0,v100:0};if(!a.img&&x.ad_image_url)a.img=x.ad_image_url;if(!a.link&&x.ad_preview_link)a.link=x.ad_preview_link;if(!a.copy&&x.ad_creative_body)a.copy=x.ad_creative_body;a.impr+=+x.impressions||0;a.spend+=+x.amount_spent||0;a.lpv+=+x.landing_page_views||0;a.pur+=+x.website_purchases||0;a.val+=+x.purchases_conv_value||0;a.v3+=+x.video_view_3s||0;a.v100+=+x.video_watch_100||0;});
+     anuncio en varias tarjetas dentro de un mismo periodo.
+     Miniatura: se prefiere ad_image_backup_url (copia en Supabase Storage, no vence). La URL de
+     Meta caduca a los pocos dias y sb() trae order=date.asc, asi que la primera fila de cada
+     anuncio es la MAS VIEJA del periodo: pasado el dia ~10 del mes la tarjeta quedaba sin imagen.
+     Por eso imgLive y link se pisan en cada vuelta y terminan con el valor mas reciente. */
+  D.metaCur.forEach(x=>{const k=x.ad_name||x.ad_image_url||x.ad_creative_body||x.campaign_name||'(s/anuncio)';const a=ads[k]=ads[k]||{imgBk:'',imgLive:'',titulo:x.ad_name||'Sin nombre',camp:x.campaign_name||'',link:x.ad_preview_link||'',copy:'',impr:0,spend:0,lpv:0,pur:0,val:0,v3:0,v100:0};if(x.ad_image_backup_url)a.imgBk=x.ad_image_backup_url;if(x.ad_image_url)a.imgLive=x.ad_image_url;if(x.ad_preview_link)a.link=x.ad_preview_link;if(!a.copy&&x.ad_creative_body)a.copy=x.ad_creative_body;a.impr+=+x.impressions||0;a.spend+=+x.amount_spent||0;a.lpv+=+x.landing_page_views||0;a.pur+=+x.website_purchases||0;a.val+=+x.purchases_conv_value||0;a.v3+=+x.video_view_3s||0;a.v100+=+x.video_watch_100||0;});
   const list=Object.values(ads).sort((a,b)=>b.val-a.val).slice(0,5);
   const tImpr=sum(D.metaCur,x=>x.impressions)||1;
   setTxt('stat-hook',c.mVidOk?pct(sum(D.metaCur,x=>x.video_view_3s)/tImpr*100):NA);
@@ -670,9 +569,10 @@ function render(c,p,D){
   document.getElementById('adcards').innerHTML=list.map(a=>{
     const esc=s=>String(s||'').replace(/</g,'&lt;').replace(/"/g,'&quot;');
     const cpm=a.impr?a.spend/a.impr*1000:0,ctr=a.impr?a.lpv/a.impr*100:0,cpv=a.lpv?a.spend/a.lpv:0,acos=a.val?a.spend/a.val*100:0,hook=a.impr?a.v3/a.impr*100:0,hold=a.impr?a.v100/a.impr*100:0;
-    /* Las URLs de Meta estan firmadas y caducan (~1 semana). El refresh diario las renueva
-       dentro de la ventana de 90 dias; fuera de ella pueden vencer. */
-    const img=a.img?'<img class="thumb-lg" src="'+esc(a.img)+'" loading="lazy" referrerpolicy="no-referrer" alt="Creativo '+esc(a.titulo)+'" onerror="this.replaceWith(Object.assign(document.createElement(&#39;div&#39;),{className:&#39;thumb-lg thumb-na&#39;,title:&#39;La URL firmada de Meta expiró&#39;}))">':'<div class="thumb-lg thumb-na" title="Sin imagen"></div>';
+    /* Backup de Storage primero; si falla, la URL de Meta mas reciente (onerror la prueba una
+       sola vez) y si tampoco carga, el placeholder. */
+    const src=a.imgBk||a.imgLive, fb=(a.imgBk&&a.imgLive)?' data-fb="'+esc(a.imgLive)+'"':'';
+    const img=src?'<img class="thumb-lg" src="'+esc(src)+'" loading="lazy" referrerpolicy="no-referrer" alt="Creativo '+esc(a.titulo)+'"'+fb+' onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.removeAttribute(&#39;data-fb&#39;);}else{this.replaceWith(Object.assign(document.createElement(&#39;div&#39;),{className:&#39;thumb-lg thumb-na&#39;,title:&#39;La imagen del anuncio no está disponible&#39;}));}">':'<div class="thumb-lg thumb-na" title="Sin imagen"></div>';
     const chip=a.camp?'<span class="ke-chip ke-c-neutral" style="margin-left:8px;">'+esc(a.camp)+'</span>':'';
     const link=a.link?'<a class="adcard-link" href="'+esc(a.link)+'" target="_blank" rel="noopener">ver anuncio ↗</a>':'';
     const titulo='<div class="adcard-h"><div class="adcard-t">'+esc(a.titulo)+chip+'</div>'+link+'</div>';
@@ -964,251 +864,6 @@ loadInsights('Paid Media','insights-pm');
 let _mob=isMobile();
 window.addEventListener('resize',()=>{const m=isMobile();if(m!==_mob){_mob=m;if(_last)render(_last.c,_last.p,_last.D);}});
 
-</script>
-<style>
-.ig-sum{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px;}
-@media(max-width:700px){.ig-sum{grid-template-columns:1fr;}}
-.ig-t td,.ig-t th{white-space:nowrap;}
-.ig-t tbody td{padding-top:14px;padding-bottom:14px;vertical-align:middle;}
-.ig-t .ig-cap{white-space:normal;max-width:300px;color:var(--ke-muted);font-size:12px;line-height:1.45;}
-.ig-thumb{width:84px;height:84px;border-radius:10px;object-fit:cover;display:block;background:var(--ke-header);border:1px solid var(--ke-border);}
-.ig-thumb-na{display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ke-orange);border-style:dashed;border-color:rgba(255,112,10,.35);padding:6px;}
-a:hover .ig-thumb-na{background:rgba(255,112,10,.1);}
-.ig-legend-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ke-text);margin-bottom:10px;}
-.ig-legend-row .dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
-.ig-legend-row .pct{margin-left:auto;color:var(--ke-muted);}
-
-/* INSTAGRAM TREND CARDS */
-.ig-tc{display:flex;flex-direction:column;}
-.ig-trends{grid-template-columns:1fr 1fr;}
-@media(max-width:700px){.ig-trends{grid-template-columns:1fr;}}
-.ig-tc-h{padding:14px 16px 2px;}
-.ig-tc-l{display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ke-muted);}
-.ig-tc-v{display:block;font-weight:700;font-size:28px;color:var(--ke-orange);line-height:1.15;margin-top:4px;}
-.ig-tc-d{display:block;font-size:11px;margin-top:2px;min-height:15px;}
-.ig-tc-chart{height:130px;padding:6px 12px 14px;}
-</style>
-<script>
-/* ===== MODULO SOCIAL MEDIA (Instagram) — solo se cambia IG_PREFIX ===== */
-(function(){
-  const IG_PREFIX='oxford';
-  const IG_URL=SUPABASE_URL;
-  const IG_KEY=SUPABASE_ANON_KEY;
-  const T=n=>IG_PREFIX+'_ig_'+n;
-  const IG_PAL=['#ff700a','#4fa3ff','#c084fc','#4dcc80','#ffd88a','#ff6eb4','#9aa0a6'];
-  const IG_GRID='rgba(230,230,230,.07)', IG_MUT='rgba(230,230,230,.5)';
-  const igCharts={};
-  const igNF=new Intl.NumberFormat('es-AR');
-  const igInt=v=>igNF.format(Math.round(v||0));
-  const igSet=(id,v)=>{const e=document.getElementById(id); if(e)e.textContent=v;};
-  const igEsc=v=>String(v==null?'':v).replace(/[<>]/g,c=>c==='<'?'&lt;':'&gt;');
-
-  async function igGet(table,cols){
-    const headers={apikey:IG_KEY,Authorization:'Bearer '+IG_KEY};
-    const r=await fetch(IG_URL+'/rest/v1/'+table+'?select='+cols+'&limit=1000',{headers});
-    if(!r.ok){console.warn('[KE] '+table+' '+r.status+' — fuente ignorada');return [];}
-    return r.json();
-  }
-  function igBar(id,labels,data){
-    const el=document.getElementById(id); if(!el||!window.Chart)return; if(igCharts[id])igCharts[id].destroy();
-    igCharts[id]=new Chart(el,{type:'bar',data:{labels,datasets:[{data,backgroundColor:'#ff700a',borderRadius:4,maxBarThickness:46}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false},
-        tooltip:{callbacks:{label:c=>igInt(c.parsed.y)+' seguidores'}}},
-        scales:{x:{grid:{display:false},ticks:{color:IG_MUT,font:{size:11}}},
-          y:{grid:{color:IG_GRID},beginAtZero:true,ticks:{color:IG_MUT,font:{size:10},callback:v=>v>=1000?(v/1000)+'k':v}}}}});
-  }
-  function igLine(id,labels,data,color){
-    const el=document.getElementById(id); if(!el||!window.Chart)return; if(igCharts[id])igCharts[id].destroy();
-    color=color||'#ff700a';
-    igCharts[id]=new Chart(el,{type:'line',data:{labels,datasets:[{data,borderColor:color,backgroundColor:color+'22',fill:true,tension:.35,pointRadius:labels.length>1?2:4,borderWidth:2}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false},
-        tooltip:{callbacks:{label:c=>igInt(c.parsed.y)}}},
-        scales:{x:{grid:{display:false},ticks:{color:IG_MUT,font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:8}},
-          y:{grid:{color:IG_GRID},beginAtZero:true,ticks:{color:IG_MUT,font:{size:9},callback:v=>v>=1000?(v/1000)+'k':v}}}}});
-  }
-  function igDailySeries(rows){
-    const map=new Map();
-    (rows||[]).forEach(r=>{ if(r&&r.fecha) map.set(r.fecha,r); });
-    const all=[...map.values()].sort((a,b)=>a.fecha<b.fecha?-1:1);
-    const pf=(typeof state!=='undefined'&&state&&state.from)?iso(state.from):null;
-    const pt=(typeof state!=='undefined'&&state&&state.to)?iso(state.to):null;
-    let inRange=(pf&&pt)?all.filter(r=>r.fecha>=pf&&r.fecha<=pt):all;
-    if(!inRange.length) inRange=all.slice(-7);
-    return inRange;
-  }
-  function igShortDate(s){ const d=new Date(s+'T00:00:00'); return isNaN(d)?s:(d.getDate()+' '+MES[d.getMonth()]); }
-  function igDonut(id,labels,data){
-    const el=document.getElementById(id); if(!el||!window.Chart)return; if(igCharts[id])igCharts[id].destroy();
-    const colors=labels.map((_,i)=>IG_PAL[i%IG_PAL.length]);
-    igCharts[id]=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},
-      options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},
-        datalabels:window.ChartDataLabels?{display:c=>c.datasetIndex===0,color:'#191919',font:{size:10,weight:700},
-          formatter:(v,c)=>{const t=c.dataset.data.reduce((s,x)=>s+x,0);const p=t?v/t*100:0;return p>=6?Math.round(p)+'%':'';}}:{display:false}}}});
-  }
-  function igPick(rows){
-    rows=rows||[];
-    const dated=rows.filter(r=>r&&r.fecha).slice().sort((a,b)=>a.fecha<b.fecha?1:-1);
-    if(!dated.length) return {cur:rows[0]||null,prev:null};
-    const cur=dated[0], curD=new Date(cur.fecha); let prev=null;
-    for(let k=1;k<dated.length;k++){ if((curD-new Date(dated[k].fecha))/86400000>=28){prev=dated[k];break;} }
-    if(!prev&&dated.length>1) prev=dated[dated.length-1];
-    return {cur,prev};
-  }
-  function igDelta(cur,prev){
-    cur=+cur; prev=+prev;
-    if(!isFinite(prev)||prev===0) return null;
-    const d=(cur-prev)/prev*100, up=d>=0;
-    return '<span class="delta '+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+Math.abs(d).toFixed(1).replace('.',',')+'%</span> vs período ant.';
-  }
-  function igKs(id,cur,prev,fb){ const e=document.getElementById(id); if(!e)return; const dh=(prev==null||prev===false||prev===undefined)?null:igDelta(cur,prev); e.innerHTML=dh||fb; }
-  async function igLoad(){
-    try{
-      const [life,daily,posts,demo,stories]=await Promise.all([
-        igGet(T('account_lifetime'),'fecha,username,followers,media_count,follows'),
-        igGet(T('account_daily'),'fecha,account_reach,account_views,account_total_interactions,account_profile_views,account_website_clicks'),
-        igGet(T('posts_media'),'thumbnail_url,permalink,date_published,media_product_type,caption,reach,views,total_interactions,likes,comments,saved,shares,follows_from_post'),
-        igGet(T('demographics'),'age,gender,follower_demographics_count'),
-        igGet(T('stories'),'media_id,media_type,date_published,permalink,reach,views,total_interactions,replies,media_backup_url')
-      ]);
-      const LP=igPick(life), DP=igPick(daily);
-      const L=LP.cur||{}, Lp=LP.prev, D=DP.cur||{}, Dp=DP.prev;
-      if(L.username) igSet('ig-handle','@'+L.username);
-      const follOk=L.followers!=null;
-      igSet('ig-followers',follOk?igInt(L.followers):'—'); igSet('ig-stat-foll',follOk?igInt(L.followers):'—');
-      /* Seguidores netos: delta entre la primera y la ultima medicion del periodo.
-         Se descartan las filas con followers NULL a proposito: restar nulos mostraria un "+0"
-         falso en vez de un dato faltante.
-         Al 07/09/2026 la query ig_account_lifetime SI manda Followers (63.521) y el ETL
-         oxford-ig-account-lifetime la carga todos los dias a las 10:09. El historico arranco
-         ese dia, asi que hasta tener 2+ fechas cargadas esto muestra "-" con razon. */
-      const _pfN=(typeof state!=='undefined'&&state&&state.from)?iso(state.from):null;
-      const _ptN=(typeof state!=='undefined'&&state&&state.to)?iso(state.to):null;
-      const lifeAll=(life||[]).filter(r=>r&&r.fecha&&r.followers!=null).sort((a,b)=>a.fecha<b.fecha?-1:1);
-      const lifeRange=(_pfN&&_ptN)?lifeAll.filter(r=>r.fecha>=_pfN&&r.fecha<=_ptN):lifeAll;
-      if(lifeRange.length>=2){
-        const f0=+lifeRange[0].followers||0,f1=+lifeRange[lifeRange.length-1].followers||0,net=f1-f0;
-        igSet('ig-netfoll',(net>=0?'+':'-')+igInt(Math.abs(net)));
-        igSet('ig-ks-netfoll','Del '+igShortDate(lifeRange[0].fecha)+' al '+igShortDate(lifeRange[lifeRange.length-1].fecha));
-      }else{
-        igSet('ig-netfoll','—');
-        igSet('ig-ks-netfoll',lifeAll.length?'Necesita 2+ días de histórico':'Sin histórico de seguidores cargado');
-      }
-      igSet('ig-reach',igInt(D.account_reach)); igSet('ig-views',igInt(D.account_views));
-      igSet('ig-inter',igInt(D.account_total_interactions));
-      igSet('ig-profile',igInt(D.account_profile_views)); igSet('ig-web',igInt(D.account_website_clicks));
-      igKs('ig-ks-followers',L.followers,follOk&&Lp&&Lp.followers,follOk?'Total de la cuenta':'⚠ Sin datos en oxford_ig_account_lifetime');
-      igKs('ig-ks-reach',D.account_reach,Dp&&Dp.account_reach,'Cuentas alcanzadas');
-      igKs('ig-ks-views',D.account_views,Dp&&Dp.account_views,'Views de contenido');
-      igKs('ig-ks-inter',D.account_total_interactions,Dp&&Dp.account_total_interactions,'Likes + coment. + guardados + comp.');
-      igKs('ig-ks-profile',D.account_profile_views,Dp&&Dp.account_profile_views,'Visitas al perfil');
-      igKs('ig-ks-web',D.account_website_clicks,Dp&&Dp.account_website_clicks,'Clics al sitio');
-
-      const engCur=D.account_reach?(+D.account_total_interactions||0)/D.account_reach*100:0;
-      const engPrev=(Dp&&Dp.account_reach)?(+Dp.account_total_interactions||0)/Dp.account_reach*100:null;
-      const dSeries=igDailySeries(daily);
-      const dLabels=dSeries.map(r=>igShortDate(r.fecha));
-      igLine('igch-views',dLabels,dSeries.map(r=>+r.account_views||0));
-      igLine('igch-reach',dLabels,dSeries.map(r=>+r.account_reach||0));
-      igLine('igch-inter',dLabels,dSeries.map(r=>+r.account_total_interactions||0));
-      igLine('igch-engrate',dLabels,dSeries.map(r=>{const rc=+r.account_reach||0;return rc?(+r.account_total_interactions||0)/rc*100:0;}));
-      igLine('igch-web',dLabels,dSeries.map(r=>+r.account_website_clicks||0));
-      igLine('igch-profile',dLabels,dSeries.map(r=>+r.account_profile_views||0));
-      igSet('igt-views',igInt(D.account_views)); igKs('igt-views-d',D.account_views,Dp&&Dp.account_views,'—');
-      igSet('igt-reach',igInt(D.account_reach)); igKs('igt-reach-d',D.account_reach,Dp&&Dp.account_reach,'—');
-      igSet('igt-inter',igInt(D.account_total_interactions)); igKs('igt-inter-d',D.account_total_interactions,Dp&&Dp.account_total_interactions,'—');
-      igSet('igt-engrate',pct(engCur)); igKs('igt-engrate-d',engCur,engPrev,'—');
-      igSet('igt-web',igInt(D.account_website_clicks)); igKs('igt-web-d',D.account_website_clicks,Dp&&Dp.account_website_clicks,'—');
-      igSet('igt-profile',igInt(D.account_profile_views)); igKs('igt-profile-d',D.account_profile_views,Dp&&Dp.account_profile_views,'—');
-
-      const fdate=s=>{if(!s)return '—';const d=new Date(s);return isNaN(d)?'—':(d.getDate()+' '+MES[d.getMonth()]);};
-      const tipo={AD:'Ad',FEED:'Feed',REELS:'Reel',STORY:'Story',CAROUSEL_ALBUM:'Carrusel',VIDEO:'Video',IMAGE:'Imagen'};
-      const _now=new Date(), _mStart=new Date(_now.getFullYear(),_now.getMonth(),1);
-      const _pf=(state&&state.from)||_mStart, _pt=(state&&state.to)?new Date(state.to.getFullYear(),state.to.getMonth(),state.to.getDate(),23,59,59):_now;
-      const monthly=posts.filter(p=>{const d=new Date(p.date_published);return !isNaN(d)&&d>=_pf&&d<=_pt;});
-      monthly.sort((a,b)=>(+b.total_interactions||0)-(+a.total_interactions||0));
-      const renderPosts=()=>{
-      const _sel=document.getElementById('ig-topn');const _v=_sel?_sel.value:'10';
-      const top=(_v==='all')?monthly.slice():monthly.slice(0,parseInt(_v,10));
-      const rowsHTML=top.map(p=>{
-        /* El Sheet trae "Thumbnail Url" en texto pero vacia en cerca de la mitad de las filas, y
-           "Media Image" / "Thumbnail Image" son formulas =IMAGE(...) que la API de Sheets devuelve
-           vacias con el render por defecto. Desde el 07/09/2026 el ETL lee con render FORMULA y les
-           saca la URL, asi que thumbnail_url llega en las 57 filas. El fallback igual se deja: las
-           URLs del CDN de Instagram caducan, de ahi el onerror, y un link claro al post es mejor
-           que un cuadro gris. */
-        const naThumb='<div class="ig-thumb ig-thumb-na">ver post ↗</div>';
-        const th=p.thumbnail_url
-          ?'<img class="ig-thumb" src="'+igEsc(p.thumbnail_url)+'" loading="lazy" referrerpolicy="no-referrer" alt="Miniatura del post" onerror="this.outerHTML=&#39;<div class=\\&#39;ig-thumb ig-thumb-na\\&#39;>ver post ↗</div>&#39;">'
-          :naThumb;
-        const prev=p.permalink?('<a href="'+igEsc(p.permalink)+'" target="_blank" rel="noopener" title="Abrir en Instagram">'+th+'</a>'):th;
-        const cap=igEsc((p.caption||'').replace(/\s+/g,' ').trim().slice(0,130));
-        return '<tr><td>'+prev+'</td><td>'+fdate(p.date_published)+'</td>'
-          +'<td><span class="ke-chip ke-c-neutral">'+igEsc(tipo[p.media_product_type]||p.media_product_type||'—')+'</span></td>'
-          +'<td class="ig-cap">'+cap+'</td>'
-          +'<td>'+igInt(p.reach)+'</td><td>'+igInt(p.views)+'</td><td>'+igInt(p.total_interactions)+'</td>'
-          +'<td>'+igInt(p.likes)+'</td><td>'+igInt(p.comments)+'</td><td>'+igInt(p.saved)+'</td>'
-          +'<td>'+igInt(p.shares)+'</td><td>'+igInt(p.follows_from_post)+'</td></tr>';
-      }).join('');
-      document.getElementById('ig-tbody').innerHTML=rowsHTML||'<tr><td colspan="12" class="ke-pg-sub">Sin publicaciones en el período.</td></tr>';
-      igSet('ig-stat-posts',(_v==='all'?'Todas ('+top.length+')':'Top '+top.length)+' del período');
-      };
-      window.igRenderPosts=renderPosts;
-      renderPosts();
-      igSet('ig-postcount',igInt(monthly.length));
-
-      /* Stories del período. La preview apunta a media_backup_url (copia en Supabase
-         Storage) y no al CDN de Instagram, que caduca a las 24 h. */
-      /* Las stories expiran a las 24 h. El resto del dashboard corta en AYER porque el dia
-         en curso esta incompleto y ensuciaria los deltas, pero con ese criterio la story de
-         hoy recien apareceria manana, ya vencida en Instagram. Por eso este bloque -- y solo
-         este -- se estira hasta el final del dia de hoy.
-         La extension se aplica unicamente si el periodo elegido es el actual (termina ayer u
-         hoy). Si el usuario mira "Mes anterior", no se cuela la story de hoy. */
-      const _hoy0=new Date(); _hoy0.setHours(0,0,0,0);
-      const _ayer0=new Date(_hoy0); _ayer0.setDate(_ayer0.getDate()-1);
-      const _finHoy=new Date(_hoy0); _finHoy.setHours(23,59,59,999);
-      const _esPeriodoActual=_pt>=_ayer0;
-      const _ptSt=_esPeriodoActual?_finHoy:_pt;
-      const stInRange=(stories||[]).filter(p=>{const d=new Date(p.date_published);return !isNaN(d)&&d>=_pf&&d<=_ptSt;});
-      stInRange.sort((a,b)=>new Date(b.date_published)-new Date(a.date_published));
-      const _stHoy=stInRange.filter(p=>{const d=new Date(p.date_published);return d>=_hoy0;}).length;
-      igSet('ig-storycount',igInt(stInRange.length));
-      igSet('ig-stat-stories',stInRange.length+' en el período'+(_esPeriodoActual&&_stHoy?' · incluye hoy':''));
-      const stTipo={STORY:'Story',IMAGE:'Imagen',VIDEO:'Video'};
-      const stRows=stInRange.map(p=>{
-        const sth=p.media_backup_url?('<img class="ig-thumb" src="'+igEsc(p.media_backup_url)+'" loading="lazy" alt="Preview de la story" onerror="this.style.visibility=&#39;hidden&#39;">'):'<div class="ig-thumb"></div>';
-        const sprev=p.media_backup_url?('<a href="'+igEsc(p.media_backup_url)+'" target="_blank" rel="noopener" title="Ver imagen respaldada">'+sth+'</a>'):sth;
-        return '<tr><td>'+sprev+'</td><td>'+fdate(p.date_published)+'</td>'
-          +'<td><span class="ke-chip ke-c-neutral">'+igEsc(stTipo[p.media_type]||p.media_type||'Story')+'</span></td>'
-          +'<td>'+igInt(p.reach)+'</td><td>'+igInt(p.views)+'</td><td>'+igInt(p.total_interactions)+'</td>'
-          +'<td>'+igInt(p.replies)+'</td></tr>';
-      }).join('');
-      const stb=document.getElementById('ig-stbody');
-      if(stb) stb.innerHTML=stRows||'<tr><td colspan="7" class="ke-pg-sub">Sin stories registradas en el período (se capturan desde el 04/08 en adelante).</td></tr>';
-
-
-      const ages=['13-17','18-24','25-34','35-44','45-54','55-64','65+'];
-      const byAge=ages.map(a=>demo.filter(d=>d.age===a).reduce((s,d)=>s+(+d.follower_demographics_count||0),0));
-      igBar('ig-cAge',ages,byAge);
-
-      const gmap={F:'Femenino',M:'Masculino',U:'Sin especificar'};
-      const gk=['F','M','U'];
-      const byG=gk.map(g=>demo.filter(d=>d.gender===g).reduce((s,d)=>s+(+d.follower_demographics_count||0),0));
-      const gtot=byG.reduce((s,x)=>s+x,0)||1;
-      igDonut('ig-cGender',gk.map(g=>gmap[g]),byG);
-      document.getElementById('ig-genderLegend').innerHTML=gk.map((g,i)=>
-        '<div class="ig-legend-row"><span class="dot" style="background:'+IG_PAL[i%IG_PAL.length]+'"></span>'+gmap[g]
-        +'<span class="pct">'+(byG[i]/gtot*100).toFixed(1).replace('.',',')+'%</span></div>').join('');
-    }catch(e){
-      console.error(e);
-      const el=document.getElementById('ig-err'); if(el)el.textContent='⚠️ Error cargando Social Media: '+e.message;
-    }
-  }
-  window.__igReload=igLoad;
-  function boot(){ igLoad(); if(typeof loadInsights==='function') loadInsights('Social Media','insights-sm'); }
-  if(document.readyState!=='loading') boot();
-  else document.addEventListener('DOMContentLoaded',boot);
-})();
 </script>
 
 <script>
